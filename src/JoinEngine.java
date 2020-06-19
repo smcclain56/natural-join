@@ -80,69 +80,85 @@ public class JoinEngine {
             System.err.println(e.getMessage());
         }
 
-        // print out available relations
-        Scanner input = new Scanner(System.in);
-        System.out.println("Available relations:");
-        System.out.println(relationNames.toString());
+        String option;
+        do {
+            // print out available relations
+            Scanner input = new Scanner(System.in);
+            System.out.println("========================= Welcome to Join Engine ==========================");
+            System.out.println("Available relations:");
+            System.out.println(relationNames.toString());
+            System.out.println();
 
-        // prompt user to pick two relations
-        System.out.println("Pick your first relation: ");
-        String firstRelation = input.nextLine().toLowerCase();
-        System.out.println("Pick your second relation: ");
-        String secondRelation = input.nextLine().toLowerCase();
+            // prompt user to pick two relations
+            System.out.println("[Option 1] Complete a join operation between two relations");
+            System.out.println("[Option 2] Exit");
+            option = input.nextLine();
 
-        // throw error if relation entered doesn't exist
-        if (!relationNames.contains(firstRelation) || !relationNames.contains(secondRelation)) {
-            throw new IllegalArgumentException();
-        }
+            if(option.equals("1")) {
+                System.out.println("Pick your first relation: ");
+                String firstRelation = input.nextLine().toLowerCase();
+                System.out.println("Pick your second relation: ");
+                String secondRelation = input.nextLine().toLowerCase();
 
-        // prompt user to choose the type of joins they want to do
-        System.out.println("Your selection (separated by space): " + firstRelation + " " + secondRelation);
-        System.out.println("1. Nested Loop Join");
-        System.out.println("2. Hash Join");
-        System.out.println("3. Sort-Merge Join");
-        int choice = input.nextInt();
-        System.out.println("Your selection: " + choice);
+                // throw error if relation entered doesn't exist
+                if (!relationNames.contains(firstRelation) || !relationNames.contains(secondRelation)) {
+                    throw new IllegalArgumentException();
+                }
 
-        // complete joins
-        Relation T = new Relation();
-        long start = 0;
-        long end = 0;
-        double timeDiff;
-        if (choice == 1) { //nested loop join
-            start = System.nanoTime(); // START TIMER
-            try{
-                T= nestedLoopJoin(relations.get(firstRelation), relations.get(secondRelation));
-            } catch (Exception e) {
-                e.printStackTrace();
+                // prompt user to choose the type of joins they want to do
+                System.out.println("Your selection (separated by space): " + firstRelation + " " + secondRelation);
+                System.out.println("1. Nested Loop Join");
+                System.out.println("2. Hash Join");
+                System.out.println("3. Sort-Merge Join");
+                int choice = input.nextInt();
+                System.out.println("Your selection: " + choice);
+
+                // complete joins
+                Relation T = new Relation();
+                long start = 0;
+                long end = 0;
+                double timeDiff;
+                if (choice == 1) { //nested loop join
+                    start = System.nanoTime(); // START TIMER
+                    try {
+                        T = nestedLoopJoin(relations.get(firstRelation), relations.get(secondRelation));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    end = System.nanoTime();
+                }
+
+                if (choice == 2) { //hash join
+                    start = System.nanoTime();
+                    try {
+                        T = hashJoin(relations.get(firstRelation), relations.get(secondRelation));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    end = System.nanoTime();
+
+                }
+
+                if (choice == 3) { //sort-merge join
+                    start = System.nanoTime();
+                    try {
+                        T = sortMergeJoin(relations.get(firstRelation), relations.get(secondRelation));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    end = System.nanoTime();
+                }
+
+                System.out.println(T.toString());
+                timeDiff = ((double) (end - start) / 1000000.0);
+                System.out.println("Time = " + timeDiff + "ms");
+            }else if(!option.equals("2")){
+                System.out.println("Please enter a number 1-2.");
+                input.close();
             }
-            end = System.nanoTime();
-        }
-
-        if (choice == 2) { //hash join
-            start = System.nanoTime();
-            try{
-                T= hashJoin(relations.get(firstRelation), relations.get(secondRelation));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            end = System.nanoTime();
-
-        }
-
-        if (choice == 3) { //sort-merge join
-            start = System.nanoTime();
-            try{
-                T= sortMergeJoin(relations.get(firstRelation), relations.get(secondRelation));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            end = System.nanoTime();
-        }
-
-        System.out.println(T.toString());
-        timeDiff = ((double) (end - start)/1000000.0);
-        System.out.println("Time = " + timeDiff + "ms");
+        }while(!option.equals("2"));
+        System.out.println("Exiting... bye.");
+        System.exit(0);
     }
 
     /**
